@@ -2,7 +2,6 @@ import os
 from typing import List, Dict, Optional
 from label_studio_ml.model import LabelStudioMLBase
 from label_studio_ml.response import ModelResponse
-
 import cv2
 
 
@@ -13,7 +12,7 @@ class PseudoStaffBBoxModel(LabelStudioMLBase):
     self.staff_order = os.environ.get('STAFF_ORDER', "violin,violin,viola,cello").split(',')
 
   def predict(self, tasks: List[Dict], context: Optional[Dict] = None, **kwargs) -> ModelResponse:
-    """ 
+    """
     Write your inference logic here
     :param tasks: [Label Studio tasks in JSON format](https://labelstud.io/guide/task_format.html)
     :param context: [Label Studio context in JSON format](https://labelstud.io/guide/ml_create#Implement-prediction-logic)
@@ -24,7 +23,11 @@ class PseudoStaffBBoxModel(LabelStudioMLBase):
 
     predictions = []
     for task in tasks:
-      sample = {"model_version": self.get("model_version"), "result": []}
+      sample = {
+        "model_version": self.get("model_version"),
+        "result":[]
+      }
+
       path = self.get_local_path(task['data']['image'], task_id=task['id'])
       img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
       h, w = img.shape[:2]
@@ -35,23 +38,25 @@ class PseudoStaffBBoxModel(LabelStudioMLBase):
       for i, staff_name in enumerate(staff_order):
         y1 = int(i * h / n_staffs)
         y2 = int((i + 1) * h / n_staffs)
+
         bbox = {
           "from_name": 'label',
           "to_name": 'image',
           "type": "rectanglelabels",
           "value": {
+            "original_width": w,
+            "original_height": h,
             "x": 0,
-            "y": y1,
-            "width": w,
-            "height": y2 - y1,
+            "y": y1/h * 100,
+            "width": 100,
+            "height": (y2-y1)/h * 100,
             "rectanglelabels": [staff_name],
           }
         }
+
         sample["result"].append(bbox)
 
       predictions.append(sample)
-    
-    breakpoint()
 
     return ModelResponse(predictions=predictions)
 

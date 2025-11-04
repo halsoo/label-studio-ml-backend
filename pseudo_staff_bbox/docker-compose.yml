@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.7"
 
 services:
   ml-backend:
@@ -27,10 +27,8 @@ services:
       # Do not use 'localhost' as it does not work within Docker containers.
       # Use prefix 'http://' or 'https://' for the URL always.
       # Determine the actual IP using 'ifconfig' (Linux/Mac) or 'ipconfig' (Windows).
-      - LABEL_STUDIO_URL=${LS_URL}
-      - LABEL_STUDIO_API_KEY=${API_KEY}
+      - LABEL_STUDIO_URL=${LABEL_STUDIO_URL}
+      - LABEL_STUDIO_API_KEY=${LABEL_STUDIO_API_KEY}
       - STAFF_ORDER=violin,violin,viola,cello
     ports:
       - "9090:9090"
-    volumes:
-      - "./data/server:/data"
